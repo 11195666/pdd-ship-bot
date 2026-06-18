@@ -1,0 +1,21 @@
+{
+  "name": "pdd-ship-bot",
+  "version": "1.0.0",
+  "description": "拼多多商家寄件 + 企业微信机器人，全自动发货系统",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "axios": "^1.7.0",
+    "xml2js": "^0.6.2",
+    "dotenv": "^16.4.0",
+    "better-sqlite3": "^11.0.0",
+    "cors": "^2.8.5",
+    "socket.io-client": "^4.7.0",
+    "playwright": "^1.52.0",
+    "https-proxy-agent": "^5.0.1"
+  }
+}
