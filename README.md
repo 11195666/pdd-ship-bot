@@ -38,7 +38,7 @@ node server.js
 | `PDD_USERNAME` / `PDD_PASSWORD` | 是 | 拼多多商家账号 |
 | `PDD_SENDER_*` | 是 | 发件人地址信息 |
 | `PORT` | 否 | 服务端口（默认 3456） |
-| `PDD_HTTP_PROXY` | 否 | HTTP 代理（解决 VPS IP 风控） |
+| `PDD_HTTP_PROXY` | 否 | 代理地址，支持 HTTP 和 SOCKS5（如 `socks5://localhost:3458`） |
 
 ### LLM 配置
 
@@ -60,15 +60,19 @@ node server.js
 | `查一下待寄件` | 列出待寄件订单 |
 | `把第一个寄了` | 自动比价 → 选最便宜 → 寄出 |
 | `全部删除` | 清空待寄件 |
-| `收货人:张三 138... 地址:浙江省...` | 创建订单+查询价格 |
+| `收货人:张三 138... 地址:浙江省...` | 创建订单+查询价格，标出最低价 |
+| `最便宜是哪个` | 对比所有快递价格 |
+
+寄件成功后，运单号会自动单独发送一条消息，方便长按复制。
 
 ## VPS IP 风控
 
 在云服务器上运行时，PDD 可能对机房 IP 进行限制。解决方案：
 
-1. **HTTP 代理**：设置 `PDD_HTTP_PROXY=http://代理地址`，请求走家庭宽带
-2. **更换 IP**：云控制台更换弹性公网 IP
-3. **购买住宅代理**：Smartproxy / IPRoyal 等
+1. **SOCKS5/HTTP 代理**：设置 `PDD_HTTP_PROXY=socks5://代理地址`，走家庭宽带
+2. **frp 隧道**：VPS 装 frps，家庭设备装 frpc + Tinyproxy
+3. **更换 IP**：云控制台更换弹性公网 IP
+4. **购买住宅代理**：Smartproxy / IPRoyal 等
 
 ## 项目结构
 
