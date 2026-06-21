@@ -19,7 +19,11 @@ const axios = require('axios');
 const proxyUrl = process.env.PDD_HTTP_PROXY || '';
 let proxyAgent = null;
 if (proxyUrl) {
-  try { proxyAgent = new (require('https-proxy-agent').HttpsProxyAgent)(proxyUrl); } catch (_) {}
+  try {
+    const isSocks = proxyUrl.startsWith('socks');
+    const Agent = isSocks ? require('socks-proxy-agent').SocksProxyAgent : require('https-proxy-agent').HttpsProxyAgent;
+    proxyAgent = new Agent(proxyUrl);
+  } catch (_) {}
 }
 const proxyOpt = () => proxyAgent ? { httpsAgent: proxyAgent } : {};
 

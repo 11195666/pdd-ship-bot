@@ -59,10 +59,16 @@ async function predictAllPrices(params) {
         shipCode: c.shipCode, branchId: c.branchId || '',
       });
       results.push({ shipCode: c.shipCode, shipName: c.shipName, totalPriceStr: price.totalPriceStr, totalPrice: price.totalPrice });
-    } catch (_) {}
+    } catch (e) {
+      console.error(`[llm] 比价失败 ${c.shipCode}: ${e.message}`);
+    }
   }
   results.sort((a, b) => (a.totalPrice || 999999) - (b.totalPrice || 999999));
-  return { cheapest: results[0] || null, all: results };
+  const cheapest = results[0] || null;
+  const priceSummary = results.length > 0
+    ? results.map(r => `${r.shipName} ${r.totalPriceStr}元${r.shipCode === cheapest?.shipCode ? ' ←最低' : ''}`).join('\n')
+    : '暂未获取到价格信息';
+  return { cheapest, all: results, priceSummary };
 }
 
 async function createOrderAndQuery(params) {
@@ -82,30 +88,44 @@ async function createOrderAndQuery(params) {
         shipCode: c.shipCode, branchId: c.branchId || '',
       });
       results.push({ shipCode: c.shipCode, shipName: c.shipName, totalPriceStr: price.totalPriceStr, totalPrice: price.totalPrice });
-    } catch (_) {}
+    } catch (e) {
+      console.error(`[llm] 比价失败 ${c.shipCode}: ${e.message}`);
+    }
   }
   results.sort((a, b) => (a.totalPrice || 999999) - (b.totalPrice || 999999));
+
+  const cheapest = results[0] || null;
+  const priceSummary = results.length > 0
+    ? results.map(r => `${r.shipName} ${r.totalPriceStr}元${r.shipCode === cheapest?.shipCode ? ' ←最低' : ''}`).join('\n')
+    : '暂未获取到价格信息';
 
   return {
     orderSn: order.orderSn,
     consignee: addr.consignee,
     phone: addr.phone,
     address: addr.province + addr.city + addr.district + ' ' + addr.detail,
-    cheapest: results[0] || null,
+    cheapest: cheapest,
     all: results,
+    priceSummary: priceSummary,
   };
 }
 
 async function shipOrder(params) {
   const { orderSn, shipCode, predictPrice: predictPriceVal } = params;
   const result = await pdd.createShipment({
-    sender,
-    orderSn,
-    goodsWeight: 1000,
+    sender, orderSn, goodsWeight: 1000,
     predictPrice: predictPriceVal || 0,
     courierInfo: { shipCode, shipName: '', deliveryModel: 2 },
   });
-  return result;
+  const item = result?.resultList?.[0] || {};
+  return {
+    success: item.success !== false,
+    waybillCode: item.waybillCode || '',
+    deliveryReceiptSn: item.deliveryReceiptSn || '',
+    orderSn: orderSn,
+    shipName: '',
+    message: item.errorMessageToFrontend || null,
+  };
 }
 
 async function listShippedOrders() {

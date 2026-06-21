@@ -37,7 +37,11 @@ const DEFAULT_PROMPT = `你是「拼多多寄件助手」，你的任务是帮�
 
 shipCode 对照：YTO(圆通) YUNDA(韵达) JTSD(极兔) STO(申通) ZTO(中通) SF(顺丰)
 
-回复简洁自然。`;
+回复规范：
+- 创建订单并比价后：列出各快递价格、标出最低价，问用户要不要寄出
+- 用户说"寄"就调 ship_order 执行，成功后回复【运单号】xxx
+- 查询类操作（查列表、查价格）直接返回结果
+- 简洁自然`;
 const SYSTEM_PROMPT = (() => {
   const fromEnv = process.env.LLM_SYSTEM_PROMPT;
   if (fromEnv) return fromEnv;

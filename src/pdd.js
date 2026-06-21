@@ -5,11 +5,15 @@
 const axios = require('axios');
 const config = require('./config');
 
-// 代理支持：设置 PDD_HTTP_PROXY=http://host:port 启用
+// 代理支持：设置 PDD_HTTP_PROXY=http://host:port 或 socks5://host:port 启用
 const proxyUrl = process.env.PDD_HTTP_PROXY || '';
 let proxyAgent = null;
 if (proxyUrl) {
-  try { proxyAgent = new (require('https-proxy-agent').HttpsProxyAgent)(proxyUrl); } catch (_) {}
+  try {
+    const isSocks = proxyUrl.startsWith('socks');
+    const Agent = isSocks ? require('socks-proxy-agent').SocksProxyAgent : require('https-proxy-agent').HttpsProxyAgent;
+    proxyAgent = new Agent(proxyUrl);
+  } catch (_) {}
   console.log('[PDD] 使用代理:', proxyUrl);
 }
 const getProxyOption = () => proxyAgent ? { httpsAgent: proxyAgent } : {};

@@ -17,7 +17,10 @@ const ts = () => new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' 
 // 代理支持（与 pdd.js 共用 PDD_HTTP_PROXY）
 const proxyUrl = process.env.PDD_HTTP_PROXY || '';
 let _proxyCtxOpt = {};
-if (proxyUrl) _proxyCtxOpt = { proxy: { server: proxyUrl } };
+if (proxyUrl) {
+  // Playwright 原生支持 HTTP 和 SOCKS5 代理
+  _proxyCtxOpt = { proxy: { server: proxyUrl } };
+}
 
 let _browser = null;
 let _context = null;

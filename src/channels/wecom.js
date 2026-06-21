@@ -66,7 +66,16 @@ class WeComChannel extends Channel {
             const { processMessage } = require('../channels/llm');
             const result = await processMessage(text);
             if (result?.reply) {
-              await wechat.sendMessage(msg.from, result.reply);
+              // 寄件成功时，提取【运单号】后面的号码单独发一条，方便复制
+              const waybillMatch = result.reply.match(/【运单号】(\S+)/);
+              if (waybillMatch) {
+                const mainMsg = result.reply;
+                const waybillOnly = waybillMatch[0];
+                await wechat.sendMessage(msg.from, mainMsg);
+                await wechat.sendMessage(msg.from, waybillOnly);
+              } else {
+                await wechat.sendMessage(msg.from, result.reply);
+              }
             }
           } catch (e) {
             console.error(`[wecom] LLM 错误: ${e.message}`);
